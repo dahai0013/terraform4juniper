@@ -8,11 +8,16 @@
 # 4- create an instance
 
 # define variables and point to terraform.tfvars
+variable "my_vpc_name" {}
 variable "access_key" {}
 variable "secret_key" {}
 variable "region" { default = "eu-west" }
-variable pri_sub1 { default = "10.1.1.0/24" }
-#variable pri_sub2 { default = "10.1.2.0/24" }
+variable pri_sub1 { default = "10.0.1.0/24" }
+#variable pri_sub2 { default = "10.0.2.0/24" }
+variable "my_ubuntu_ami" {}
+variable "my_ubuntu_instance_type" {}
+variable "my_ubuntu_name" {}
+variable "my_key_name" {}
 
 
 #AWS access and secret key to access AWS
@@ -28,7 +33,7 @@ resource "aws_vpc" "vpc" {
   enable_dns_support   = true
   enable_dns_hostnames = true
   tags {
-    Name = "ixVPC"
+    Name = "${var.my_vpc_name}"
   }
 }
 
@@ -76,7 +81,7 @@ resource "aws_subnet" "private" {
   cidr_block = "${var.pri_sub1}"
   tags {
     #Name = "${var.name}-private"
-    Name = "ixVPC-private"
+    Name = "${var.my_vpc_name}-private"
   }
 }
 
@@ -88,18 +93,14 @@ resource "aws_subnet" "private" {
 
 # 4- create an instance
 resource "aws_instance" "ubuntu1" {
-        #ubuntu AMI
-        #ami = "ami-e0bc5987"
-        #instance_type = "t2.micro"
-        #AWS AMI
-        ami = "ami-403e2524"
-        instance_type = "t2.nano"
-        key_name = "terraformkeypair2"
+        ami = "${var.my_ubuntu_ami}"
+        instance_type = "${var.my_ubuntu_instance_type}"
+        key_name = "${var.my_key_name}"
         subnet_id = "${aws_subnet.private.id}"
         #security_groups= ["TerraformsSecurityGroup"]
         security_groups = ["${aws_security_group.allow_ssh.id}"]
         associate_public_ip_address = true
         tags {
-         Name = "Ubuntu1-instance"
+         Name = "${var.my_ubuntu_name}"
         }
 }
